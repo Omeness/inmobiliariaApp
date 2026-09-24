@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DetailView, FormView,
                                   ListView, TemplateView, UpdateView)
 
-from .forms import BuscarPorIdForm, FiltroPropiedadForm, PropiedadForm
+from .forms import (BuscarPorIdForm, FiltroPropiedadForm,
+                    PropiedadCrearForm, PropiedadEditarForm)
 from .models import Propiedad
 
 MSG_VENDIDA = 'Esta propiedad ya fue vendida y su información no puede ser modificada'
@@ -54,8 +55,8 @@ class PropiedadDetailView(DetailView):
 
 class PropiedadCreateView(CreateView):
     model = Propiedad
-    form_class = PropiedadForm
-    template_name = 'catalogo/form.html'
+    form_class = PropiedadCrearForm
+    template_name = 'catalogo/crear.html'
     success_url = reverse_lazy('catalogo:lista')
 
     def form_valid(self, form):
@@ -65,12 +66,12 @@ class PropiedadCreateView(CreateView):
 
 class PropiedadUpdateView(UpdateView):
     model = Propiedad
-    form_class = PropiedadForm
-    template_name = 'catalogo/form.html'
+    form_class = PropiedadEditarForm
+    template_name = 'catalogo/editar.html'
     success_url = reverse_lazy('catalogo:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        # Bloqueo si está vendida (tanto desde el listado como desde el buscador por ID)
+        # Bloqueo si está vendida (desde el listado, el buscador por ID o URL manual)
         propiedad = get_object_or_404(Propiedad, pk=kwargs['pk'])
         if propiedad.esta_vendida:
             messages.error(request, MSG_VENDIDA)
@@ -78,7 +79,10 @@ class PropiedadUpdateView(UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        messages.success(self.request, 'Propiedad actualizada correctamente.')
+        if form.cleaned_data.get('eliminar_fotografia'):
+            messages.success(self.request, 'Propiedad actualizada y fotografía eliminada.')
+        else:
+            messages.success(self.request, 'Propiedad actualizada correctamente.')
         return super().form_valid(form)
 
 
@@ -92,7 +96,6 @@ class BuscarPropiedadView(FormView):
         if not Propiedad.objects.filter(pk=pk).exists():
             form.add_error('propiedad_id', f'No existe una propiedad con ID {pk}.')
             return self.form_invalid(form)
-        # La validación de "vendida" ocurre en PropiedadUpdateView.dispatch
         return redirect('catalogo:editar', pk=pk)
 
 

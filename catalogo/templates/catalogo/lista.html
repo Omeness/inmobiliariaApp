@@ -7,6 +7,9 @@
 </div>
 
 <form method="get" class="card card-body mb-4">
+  {% if filtro.non_field_errors %}
+    <div class="alert alert-danger">{{ filtro.non_field_errors }}</div>
+  {% endif %}
   <div class="row g-3 align-items-end">
     <div class="col-md-2">{{ filtro.fecha_desde.label_tag }}{{ filtro.fecha_desde }}</div>
     <div class="col-md-2">{{ filtro.fecha_hasta.label_tag }}{{ filtro.fecha_hasta }}</div>

@@ -1,0 +1,53 @@
+{% extends 'catalogo/base.html' %}
+{% block title %}Editar propiedad{% endblock %}
+{% block content %}
+<h2 class="mb-3">Editar propiedad #{{ object.id }}</h2>
+
+{% if object.fotografia_principal %}
+  <div class="mb-3">
+    <div class="small text-muted mb-1">Fotografía actual</div>
+    <img src="{{ object.fotografia_principal.url }}" alt="{{ object.titulo }}"
+         class="img-thumbnail" style="max-height: 180px;">
+  </div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" id="form-propiedad" class="card card-body mb-3">
+  {% csrf_token %}
+  {% include 'catalogo/_campos.html' %}
+  <div class="mt-4 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Cancelar</a>
+  </div>
+</form>
+
+<form method="post" action="{% url 'catalogo:baja' object.pk %}"
+      onsubmit="return confirm('¿Seguro que deseas dar de baja esta propiedad?');">
+  {% csrf_token %}
+  <button class="btn btn-danger">Dar de baja</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById('form-propiedad');
+  const estado = document.getElementById('id_estado_venta');
+  const estadoInicial = estado.value;
+  const chkFoto = document.getElementById('id_eliminar_fotografia');
+
+  form.addEventListener('submit', function (e) {
+    // Confirmación al marcar como VENDIDA
+    if (estado.value === 'VENDIDA' && estadoInicial !== 'VENDIDA') {
+      if (!confirm('Vas a marcar esta propiedad como VENDIDA. Después no podrá modificarse. ¿Confirmas que no es un error?')) {
+        e.preventDefault();
+        return;
+      }
+    }
+    // Confirmación al eliminar la fotografía
+    if (chkFoto && chkFoto.checked) {
+      if (!confirm('Se eliminará la fotografía de esta propiedad. ¿Deseas continuar?')) {
+        e.preventDefault();
+      }
+    }
+  });
+</script>
+{% endblock %}

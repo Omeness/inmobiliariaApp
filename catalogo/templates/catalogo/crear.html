@@ -1,0 +1,13 @@
+{% extends 'catalogo/base.html' %}
+{% block title %}Publicar inmueble{% endblock %}
+{% block content %}
+<h2 class="mb-3">Publicar inmueble</h2>
+<form method="post" enctype="multipart/form-data" class="card card-body">
+  {% csrf_token %}
+  {% include 'catalogo/_campos.html' %}
+  <div class="mt-4 d-flex gap-2">
+    <button type="submit" class="btn btn-success">Publicar</button>
+    <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

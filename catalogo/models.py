@@ -1,4 +1,17 @@
+from decimal import Decimal
+
+from django.core.validators import (MaxValueValidator, MinLengthValidator,
+                                    MinValueValidator, RegexValidator)
 from django.db import models
+
+solo_codigo = RegexValidator(
+    r'^[A-Za-z0-9\-]+$',
+    'El código solo puede contener letras, números y guiones (sin espacios).',
+)
+solo_texto = RegexValidator(
+    r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\.\-']+$",
+    'La comuna solo puede contener letras, espacios, puntos y guiones.',
+)
 
 
 class Propiedad(models.Model):
@@ -12,20 +25,54 @@ class Propiedad(models.Model):
         UF = 'UF', 'UF'
         CLP = 'CLP', 'CLP'
 
-    codigo_referencia = models.CharField(max_length=20, unique=True)
-    titulo = models.CharField(max_length=150)
-    descripcion = models.TextField()
-    estado_venta = models.CharField(
-        max_length=12, choices=EstadoVenta.choices, default=EstadoVenta.DISPONIBLE
+    codigo_referencia = models.CharField(
+        'Código de referencia', max_length=20, unique=True,
+        validators=[MinLengthValidator(3, 'El código debe tener al menos 3 caracteres.'), solo_codigo],
+        error_messages={'unique': 'Ya existe una propiedad con ese código de referencia.'},
     )
-    precio_venta = models.DecimalField(max_digits=14, decimal_places=2)
+    titulo = models.CharField(
+        'Título', max_length=150,
+        validators=[MinLengthValidator(5, 'El título debe tener al menos 5 caracteres.')],
+    )
+    descripcion = models.TextField(
+        'Descripción',
+        validators=[MinLengthValidator(20, 'La descripción debe tener al menos 20 caracteres.')],
+    )
+    estado_venta = models.CharField(
+        'Estado de venta', max_length=12,
+        choices=EstadoVenta.choices, default=EstadoVenta.DISPONIBLE,
+    )
+    precio_venta = models.DecimalField(
+        'Precio de venta', max_digits=14, decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'), 'El precio debe ser mayor que cero.')],
+    )
     moneda = models.CharField(max_length=3, choices=Moneda.choices, default=Moneda.UF)
-    superficie_total = models.DecimalField('Superficie total (m²)', max_digits=8, decimal_places=2)
-    habitaciones = models.PositiveSmallIntegerField(default=1)
-    banos = models.PositiveSmallIntegerField('Baños', default=1)
-    comuna = models.CharField(max_length=80)
-    direccion = models.CharField(max_length=200)
-    fotografia_principal = models.ImageField(upload_to='propiedades/', blank=True, null=True)
+    superficie_total = models.DecimalField(
+        'Superficie total (m²)', max_digits=8, decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal('0.01'), 'La superficie debe ser mayor que cero.'),
+            MaxValueValidator(Decimal('100000'), 'La superficie no puede superar 100.000 m².'),
+        ],
+    )
+    habitaciones = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MaxValueValidator(50, 'El máximo permitido es 50 habitaciones.')],
+    )
+    banos = models.PositiveSmallIntegerField(
+        'Baños', default=1,
+        validators=[MaxValueValidator(20, 'El máximo permitido es 20 baños.')],
+    )
+    comuna = models.CharField(
+        max_length=80,
+        validators=[MinLengthValidator(3, 'La comuna debe tener al menos 3 caracteres.'), solo_texto],
+    )
+    direccion = models.CharField(
+        'Dirección', max_length=200,
+        validators=[MinLengthValidator(5, 'La dirección debe tener al menos 5 caracteres.')],
+    )
+    fotografia_principal = models.ImageField(
+        'Fotografía principal', upload_to='propiedades/', blank=True, null=True,
+    )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
