@@ -1,0 +1,11 @@
+{% extends 'catalogo/base.html' %}
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="mb-5">Gestión de Catálogo</h1>
+  <div class="d-grid gap-3 col-md-4 mx-auto">
+    <a class="btn btn-primary btn-lg" href="{% url 'catalogo:lista' %}">Explorar Propiedades</a>
+    <a class="btn btn-success btn-lg" href="{% url 'catalogo:crear' %}">Publicar Inmueble</a>
+    <a class="btn btn-warning btn-lg" href="{% url 'catalogo:buscar' %}">Administrar Portafolio</a>
+  </div>
+</div>
+{% endblock %}

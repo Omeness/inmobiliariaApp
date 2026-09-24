@@ -1,0 +1,17 @@
+{% extends 'catalogo/base.html' %}
+{% block content %}
+<div class="col-md-5 mx-auto card card-body">
+  <h3 class="mb-3">Administrar Portafolio</h3>
+  <p class="text-muted">Ingresa el ID de la propiedad que deseas editar o dar de baja.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.propiedad_id.label_tag }}
+    {{ form.propiedad_id }}
+    {% for e in form.propiedad_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary">Buscar</button>
+      <a class="btn btn-secondary" href="{% url 'catalogo:home' %}">Volver</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'catalogo/base.html' %}
+{% block title %}Listado de Propiedades{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Listado de Propiedades en Venta</h2>
+  <a class="btn btn-success" href="{% url 'catalogo:crear' %}">Crear Nuevo Registro</a>
+</div>
+
+<form method="get" class="card card-body mb-4">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-2">{{ filtro.fecha_desde.label_tag }}{{ filtro.fecha_desde }}</div>
+    <div class="col-md-2">{{ filtro.fecha_hasta.label_tag }}{{ filtro.fecha_hasta }}</div>
+    <div class="col-md-2">{{ filtro.precio_min.label_tag }}{{ filtro.precio_min }}</div>
+    <div class="col-md-2">{{ filtro.precio_max.label_tag }}{{ filtro.precio_max }}</div>
+    <div class="col-md-2">{{ filtro.estado.label_tag }}{{ filtro.estado }}</div>
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-primary w-100">Filtrar</button>
+      <a class="btn btn-outline-secondary" href="{% url 'catalogo:lista' %}">Limpiar</a>
+    </div>
+  </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-striped table-hover bg-white align-middle">
+  <thead class="table-dark">
+    <tr><th>ID</th><th>Código</th><th>Título</th><th>Comuna</th><th>Precio</th>
+        <th>Estado</th><th>Creada</th><th>Acciones</th></tr>
+  </thead>
+  <tbody>
+  {% for p in propiedades %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.codigo_referencia }}</td>
+      <td>{{ p.titulo }}</td>
+      <td>{{ p.comuna }}</td>
+      <td>{{ p.precio_venta|floatformat:2 }} {{ p.moneda }}</td>
+      <td><span class="badge bg-secondary">{{ p.get_estado_venta_display }}</span></td>
+      <td>{{ p.fecha_creacion|date:"d/m/Y" }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'catalogo:editar' p.pk %}">Editar</a>
+        <a class="btn btn-sm btn-outline-info" href="{% url 'catalogo:detalle' p.pk %}">Ver detalles</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8" class="text-center text-muted">No hay propiedades que coincidan.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<a class="btn btn-link" href="{% url 'catalogo:home' %}">← Inicio</a>
+{% endblock %}

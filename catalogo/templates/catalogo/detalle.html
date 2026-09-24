@@ -1,0 +1,30 @@
+{% extends 'catalogo/base.html' %}
+{% block content %}
+<div class="card">
+  <div class="row g-0">
+    <div class="col-md-5">
+      {% if object.fotografia_principal %}
+        <img src="{{ object.fotografia_principal.url }}" class="img-fluid rounded-start" alt="{{ object.titulo }}">
+      {% else %}
+        <div class="p-5 text-center text-muted">Sin fotografía</div>
+      {% endif %}
+    </div>
+    <div class="col-md-7">
+      <div class="card-body">
+        <h3>{{ object.titulo }}</h3>
+        <p class="text-muted">Código: {{ object.codigo_referencia }} · ID {{ object.id }}</p>
+        <p>{{ object.descripcion|linebreaksbr }}</p>
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item"><strong>Estado:</strong> {{ object.get_estado_venta_display }}</li>
+          <li class="list-group-item"><strong>Precio:</strong> {{ object.precio_venta|floatformat:2 }} {{ object.moneda }}</li>
+          <li class="list-group-item"><strong>Superficie total:</strong> {{ object.superficie_total }} m²</li>
+          <li class="list-group-item"><strong>Habitaciones:</strong> {{ object.habitaciones }} · <strong>Baños:</strong> {{ object.banos }}</li>
+          <li class="list-group-item"><strong>Ubicación:</strong> {{ object.direccion }}, {{ object.comuna }}</li>
+          <li class="list-group-item"><strong>Creada:</strong> {{ object.fecha_creacion|date:"d/m/Y H:i" }} · <strong>Actualizada:</strong> {{ object.fecha_actualizacion|date:"d/m/Y H:i" }}</li>
+        </ul>
+        <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Volver atrás</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
