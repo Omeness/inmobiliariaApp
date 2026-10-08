@@ -136,8 +136,8 @@ class FiltroPropiedadForm(forms.Form):
         return d
 
 
-class BuscarPorIdForm(forms.Form):
-    propiedad_id = forms.IntegerField(
-        min_value=1, label='ID de la propiedad',
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 12'}),
+class BuscarPorCodigoForm(forms.Form):
+    codigo_referencia = forms.CharField(
+        label='Código de la propiedad',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: DEP-105'}),
     )

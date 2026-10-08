@@ -1,13 +1,17 @@
 {% extends 'catalogo/base.html' %}
 {% block title %}Publicar inmueble{% endblock %}
 {% block content %}
-<h2 class="mb-3">Publicar inmueble</h2>
-<form method="post" enctype="multipart/form-data" class="card card-body">
-  {% csrf_token %}
-  {% include 'catalogo/_campos.html' %}
-  <div class="mt-4 d-flex gap-2">
-    <button type="submit" class="btn btn-success">Publicar</button>
-    <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Cancelar</a>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h2 class="mb-4 fw-bold">Publicar Nueva Propiedad</h2>
+    <form method="post" enctype="multipart/form-data" class="card p-5">
+      {% csrf_token %}
+      {% include 'catalogo/_campos.html' %}
+      <div class="mt-5 d-flex gap-3 justify-content-end">
+        <a class="btn btn-outline-dark px-4" href="{% url 'catalogo:lista' %}">CANCELAR</a>
+        <button type="submit" class="btn btn-accent px-5">PUBLICAR PROPIEDAD</button>
+      </div>
+    </form>
   </div>
-</form>
+</div>
 {% endblock %}

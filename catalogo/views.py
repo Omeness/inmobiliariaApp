@@ -4,17 +4,16 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DetailView, FormView,
                                   ListView, TemplateView, UpdateView)
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .forms import (BuscarPorIdForm, FiltroPropiedadForm,
+from .forms import (BuscarPorCodigoForm, FiltroPropiedadForm,
                     PropiedadCrearForm, PropiedadEditarForm)
 from .models import Propiedad
 
 MSG_VENDIDA = 'Esta propiedad ya fue vendida y su información no puede ser modificada'
 
-
 class HomeView(TemplateView):
     template_name = 'catalogo/home.html'
-
 
 class PropiedadListView(ListView):
     model = Propiedad
@@ -47,32 +46,35 @@ class PropiedadListView(ListView):
         ctx['filtro'] = self.filtro
         return ctx
 
-
 class PropiedadDetailView(DetailView):
     model = Propiedad
     template_name = 'catalogo/detalle.html'
 
-
-class PropiedadCreateView(CreateView):
+class PropiedadCreateView(LoginRequiredMixin, CreateView):
     model = Propiedad
     form_class = PropiedadCrearForm
     template_name = 'catalogo/crear.html'
     success_url = reverse_lazy('catalogo:lista')
 
     def form_valid(self, form):
+        form.instance.agente = self.request.user
         messages.success(self.request, 'Propiedad publicada correctamente.')
         return super().form_valid(form)
 
-
-class PropiedadUpdateView(UpdateView):
+class PropiedadUpdateView(LoginRequiredMixin, UpdateView):
     model = Propiedad
     form_class = PropiedadEditarForm
     template_name = 'catalogo/editar.html'
     success_url = reverse_lazy('catalogo:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        # Bloqueo si está vendida (desde el listado, el buscador por ID o URL manual)
         propiedad = get_object_or_404(Propiedad, pk=kwargs['pk'])
+        
+        # Validación de autoría
+        if propiedad.agente and propiedad.agente != request.user:
+            messages.error(request, 'No tienes permiso para modificar una propiedad publicada por otro agente.')
+            return redirect('catalogo:lista')
+            
         if propiedad.esta_vendida:
             messages.error(request, MSG_VENDIDA)
             return redirect('catalogo:lista')
@@ -85,26 +87,28 @@ class PropiedadUpdateView(UpdateView):
             messages.success(self.request, 'Propiedad actualizada correctamente.')
         return super().form_valid(form)
 
-
-class BuscarPropiedadView(FormView):
-    """Vista intermedia de 'Administrar Portafolio': pide un ID."""
+class BuscarPropiedadView(LoginRequiredMixin, FormView):
     template_name = 'catalogo/buscar.html'
-    form_class = BuscarPorIdForm
+    form_class = BuscarPorCodigoForm
 
     def form_valid(self, form):
-        pk = form.cleaned_data['propiedad_id']
-        if not Propiedad.objects.filter(pk=pk).exists():
-            form.add_error('propiedad_id', f'No existe una propiedad con ID {pk}.')
+        codigo = form.cleaned_data['codigo_referencia']
+        propiedad = Propiedad.objects.filter(codigo_referencia__iexact=codigo).first()
+        if not propiedad:
+            form.add_error('codigo_referencia', f'No existe una propiedad con código {codigo}.')
             return self.form_invalid(form)
-        return redirect('catalogo:editar', pk=pk)
+        return redirect('catalogo:editar', pk=propiedad.pk)
 
-
-class PropiedadDarDeBajaView(View):
-    """Soft delete. Solo POST."""
+class PropiedadDarDeBajaView(LoginRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
         propiedad = get_object_or_404(Propiedad, pk=pk)
+        
+        if propiedad.agente and propiedad.agente != request.user:
+            messages.error(request, 'No tienes permiso para dar de baja una propiedad publicada por otro agente.')
+            return redirect('catalogo:lista')
+
         if propiedad.esta_vendida:
             messages.error(request, MSG_VENDIDA)
         else:

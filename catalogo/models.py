@@ -1,8 +1,9 @@
 from decimal import Decimal
 
-from django.core.validators import (MaxValueValidator, MinLengthValidator,
+from django.core.validators import (MaxValueValidator, MaxLengthValidator, MinLengthValidator,
                                     MinValueValidator, RegexValidator)
 from django.db import models
+from django.contrib.auth.models import User
 
 solo_codigo = RegexValidator(
     r'^[A-Za-z0-9\-]+$',
@@ -36,7 +37,10 @@ class Propiedad(models.Model):
     )
     descripcion = models.TextField(
         'Descripción',
-        validators=[MinLengthValidator(20, 'La descripción debe tener al menos 20 caracteres.')],
+        validators=[
+            MinLengthValidator(20, 'La descripción debe tener al menos 20 caracteres.'),
+            MaxLengthValidator(800, 'La descripción no puede superar los 800 caracteres.')
+        ],
     )
     estado_venta = models.CharField(
         'Estado de venta', max_length=12,
@@ -73,6 +77,7 @@ class Propiedad(models.Model):
     fotografia_principal = models.ImageField(
         'Fotografía principal', upload_to='propiedades/', blank=True, null=True,
     )
+    agente = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Agente Inmobiliario')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 

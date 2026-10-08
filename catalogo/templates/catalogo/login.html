@@ -1,0 +1,32 @@
+{% extends 'catalogo/base.html' %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card p-5">
+      <h3 class="fw-bold text-center mb-4">Acceso Administrativo</h3>
+      <form method="post" action="{% url 'catalogo:login' %}">
+        {% csrf_token %}
+        {% if form.errors %}
+          <div class="alert alert-danger rounded-0 border-0 text-center small mb-4">
+            Credenciales inválidas. Por favor intente nuevamente.
+          </div>
+        {% endif %}
+        
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase">Nombre de Usuario</label>
+          <input type="text" name="username" class="form-control p-3" maxlength="150" required autofocus>
+        </div>
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase">Contraseña</label>
+          <input type="password" name="password" class="form-control p-3" maxlength="128" required>
+        </div>
+        
+        <div class="d-grid mt-5">
+          <button type="submit" class="btn btn-accent btn-lg">INGRESAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

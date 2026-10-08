@@ -1,17 +1,25 @@
 {% extends 'catalogo/base.html' %}
+{% block title %}Administrar Portafolio{% endblock %}
 {% block content %}
-<div class="col-md-5 mx-auto card card-body">
-  <h3 class="mb-3">Administrar Portafolio</h3>
-  <p class="text-muted">Ingresa el ID de la propiedad que deseas editar o dar de baja.</p>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.propiedad_id.label_tag }}
-    {{ form.propiedad_id }}
-    {% for e in form.propiedad_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
-    <div class="d-flex gap-2 mt-3">
-      <button class="btn btn-primary">Buscar</button>
-      <a class="btn btn-secondary" href="{% url 'catalogo:home' %}">Volver</a>
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 text-center">
+    <h2 class="fw-bold mb-3">Administrar Portafolio</h2>
+    <p class="text-muted mb-5">Ingresa el Código de Referencia de la propiedad que deseas editar o dar de baja.</p>
+    
+    <div class="card p-5 text-start mx-auto" style="max-width: 450px;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label text-muted small fw-bold text-uppercase" for="{{ form.codigo_referencia.id_for_label }}">{{ form.codigo_referencia.label }}</label>
+          {{ form.codigo_referencia }}
+          {% for e in form.codigo_referencia.errors %}<div class="text-danger small mt-1 fw-bold">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="d-grid gap-2 mt-4">
+          <button class="btn btn-accent btn-lg text-uppercase">Buscar Inmueble</button>
+          <a class="btn btn-link text-muted text-decoration-none mt-2" href="{% url 'catalogo:home' %}">← Volver al inicio</a>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
 {% endblock %}

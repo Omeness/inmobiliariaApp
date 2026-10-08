@@ -1,28 +1,56 @@
 {% extends 'catalogo/base.html' %}
 {% block content %}
-<div class="card">
-  <div class="row g-0">
-    <div class="col-md-5">
+<div class="row">
+  <div class="col-md-7 mb-4">
+    <div class="card overflow-hidden">
       {% if object.fotografia_principal %}
-        <img src="{{ object.fotografia_principal.url }}" class="img-fluid rounded-start" alt="{{ object.titulo }}">
+        <img src="{{ object.fotografia_principal.url }}" class="w-100" style="object-fit: cover;" alt="{{ object.titulo }}">
       {% else %}
-        <div class="p-5 text-center text-muted">Sin fotografía</div>
+        <img src="https://placehold.co/600x400/eeeeee/999999?text=Sin+Fotografia" class="w-100" style="object-fit: cover;" alt="Sin fotografía">
       {% endif %}
     </div>
-    <div class="col-md-7">
-      <div class="card-body">
-        <h3>{{ object.titulo }}</h3>
-        <p class="text-muted">Código: {{ object.codigo_referencia }} · ID {{ object.id }}</p>
-        <p>{{ object.descripcion|linebreaksbr }}</p>
-        <ul class="list-group list-group-flush mb-3">
-          <li class="list-group-item"><strong>Estado:</strong> {{ object.get_estado_venta_display }}</li>
-          <li class="list-group-item"><strong>Precio:</strong> {{ object.precio_venta|floatformat:2 }} {{ object.moneda }}</li>
-          <li class="list-group-item"><strong>Superficie total:</strong> {{ object.superficie_total }} m²</li>
-          <li class="list-group-item"><strong>Habitaciones:</strong> {{ object.habitaciones }} · <strong>Baños:</strong> {{ object.banos }}</li>
-          <li class="list-group-item"><strong>Ubicación:</strong> {{ object.direccion }}, {{ object.comuna }}</li>
-          <li class="list-group-item"><strong>Creada:</strong> {{ object.fecha_creacion|date:"d/m/Y H:i" }} · <strong>Actualizada:</strong> {{ object.fecha_actualizacion|date:"d/m/Y H:i" }}</li>
-        </ul>
-        <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Volver atrás</a>
+  </div>
+  <div class="col-md-5">
+    <div class="ps-md-4">
+      <div class="mb-3">
+        <span class="badge" style="background-color: var(--accent-color);">{{ object.get_estado_venta_display }}</span>
+      </div>
+      <h2 class="fw-bold mb-1">{{ object.titulo }}</h2>
+      <p class="text-muted text-uppercase small mb-1"><i class="bi bi-person"></i> Publicado por: {{ object.agente.username|default:"Agencia" }}</p>
+      <p class="text-muted text-uppercase small mb-4"><i class="bi bi-geo-alt"></i> {{ object.direccion }}, {{ object.comuna }}</p>
+      
+      <h3 class="mb-4" style="color: var(--accent-color);">{{ object.precio_venta|floatformat:0 }} {{ object.moneda }}</h3>
+      
+      <div class="d-flex justify-content-between border-top border-bottom py-3 mb-4 text-center">
+        <div>
+          <small class="text-muted d-block" style="font-size: 0.7rem;">M² TOTALES</small>
+          <span class="fw-bold fs-5">{{ object.superficie_total }}</span>
+        </div>
+        <div class="border-start ps-4">
+          <small class="text-muted d-block" style="font-size: 0.7rem;">DORMS</small>
+          <span class="fw-bold fs-5">{{ object.habitaciones }}</span>
+        </div>
+        <div class="border-start ps-4">
+          <small class="text-muted d-block" style="font-size: 0.7rem;">BAÑOS</small>
+          <span class="fw-bold fs-5">{{ object.banos }}</span>
+        </div>
+      </div>
+      
+      <div class="mb-5">
+        <h5 class="fw-bold mb-3">Descripción</h5>
+        <p style="line-height: 1.8;">{{ object.descripcion|linebreaksbr }}</p>
+      </div>
+
+      <div class="text-muted small mb-4">
+        <p class="mb-1">Cód. Referencia: <strong>{{ object.codigo_referencia }}</strong> (ID: {{ object.id }})</p>
+        <p class="mb-0">Publicado: {{ object.fecha_creacion|date:"d/m/Y" }}</p>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-dark px-4 py-2 text-uppercase fw-bold" href="{% url 'catalogo:lista' %}">Volver</a>
+        {% if user.is_authenticated %}
+        <a class="btn btn-accent px-4 py-2" href="{% url 'catalogo:editar' object.pk %}">EDITAR REGISTRO</a>
+        {% endif %}
       </div>
     </div>
   </div>

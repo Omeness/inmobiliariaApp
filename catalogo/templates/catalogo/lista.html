@@ -1,12 +1,14 @@
 {% extends 'catalogo/base.html' %}
-{% block title %}Listado de Propiedades{% endblock %}
+{% block title %}Propiedades Exclusivas{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Listado de Propiedades en Venta</h2>
-  <a class="btn btn-success" href="{% url 'catalogo:crear' %}">Crear Nuevo Registro</a>
+<div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+  <h2 class="mb-0">Propiedades Exclusivas</h2>
+  {% if user.is_authenticated %}
+  <a class="btn btn-outline-accent btn-sm" href="{% url 'catalogo:crear' %}">NUEVO REGISTRO</a>
+  {% endif %}
 </div>
 
-<form method="get" class="card card-body mb-4">
+<form method="get" class="card p-4 mb-5">
   {% if filtro.non_field_errors %}
     <div class="alert alert-danger">{{ filtro.non_field_errors }}</div>
   {% endif %}
@@ -17,38 +19,65 @@
     <div class="col-md-2">{{ filtro.precio_max.label_tag }}{{ filtro.precio_max }}</div>
     <div class="col-md-2">{{ filtro.estado.label_tag }}{{ filtro.estado }}</div>
     <div class="col-md-2 d-flex gap-2">
-      <button class="btn btn-primary w-100">Filtrar</button>
-      <a class="btn btn-outline-secondary" href="{% url 'catalogo:lista' %}">Limpiar</a>
+      <button class="btn btn-accent w-100">BUSCAR</button>
+      <a class="btn btn-outline-secondary px-3" href="{% url 'catalogo:lista' %}">X</a>
     </div>
   </div>
 </form>
 
-<div class="table-responsive">
-<table class="table table-striped table-hover bg-white align-middle">
-  <thead class="table-dark">
-    <tr><th>ID</th><th>Código</th><th>Título</th><th>Comuna</th><th>Precio</th>
-        <th>Estado</th><th>Creada</th><th>Acciones</th></tr>
-  </thead>
-  <tbody>
+<div class="row g-4">
   {% for p in propiedades %}
-    <tr>
-      <td>{{ p.id }}</td>
-      <td>{{ p.codigo_referencia }}</td>
-      <td>{{ p.titulo }}</td>
-      <td>{{ p.comuna }}</td>
-      <td>{{ p.precio_venta|floatformat:2 }} {{ p.moneda }}</td>
-      <td><span class="badge bg-secondary">{{ p.get_estado_venta_display }}</span></td>
-      <td>{{ p.fecha_creacion|date:"d/m/Y" }}</td>
-      <td>
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'catalogo:editar' p.pk %}">Editar</a>
-        <a class="btn btn-sm btn-outline-info" href="{% url 'catalogo:detalle' p.pk %}">Ver detalles</a>
-      </td>
-    </tr>
+  <div class="col-md-4">
+    <div class="card card-property h-100 position-relative">
+      {% if p.estado_venta == 'VENDIDA' or p.estado_venta == 'RESERVADA' %}
+        <span class="badge-estado" style="background-color: #333;">{{ p.get_estado_venta_display }}</span>
+      {% else %}
+        <span class="badge-estado">{{ p.get_estado_venta_display }}</span>
+      {% endif %}
+      
+      {% if p.fotografia_principal %}
+        <img src="{{ p.fotografia_principal.url }}" class="card-img-top" alt="{{ p.titulo }}" style="height: 250px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+      {% else %}
+        <img src="https://placehold.co/600x400/eeeeee/999999?text=Sin+Fotografia" class="card-img-top" alt="Sin fotografía" style="height: 250px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+      {% endif %}
+      
+      <div class="card-body p-4">
+        <h5 class="card-title text-truncate mb-1">{{ p.titulo }}</h5>
+        <p class="text-muted small text-uppercase mb-1"><i class="bi bi-person"></i> Publicado por: {{ p.agente.username|default:"Agencia" }}</p>
+        <p class="text-muted small text-uppercase mb-3">{{ p.comuna }}</p>
+        
+        <div class="d-flex justify-content-between mb-3 border-top pt-3">
+          <div class="text-center">
+            <small class="text-muted d-block" style="font-size: 0.7rem;">M² TOTALES</small>
+            <span class="fw-bold">{{ p.superficie_total }}</span>
+          </div>
+          <div class="text-center border-start ps-3">
+            <small class="text-muted d-block" style="font-size: 0.7rem;">DORMS</small>
+            <span class="fw-bold">{{ p.habitaciones }}</span>
+          </div>
+          <div class="text-center border-start ps-3">
+            <small class="text-muted d-block" style="font-size: 0.7rem;">BAÑOS</small>
+            <span class="fw-bold">{{ p.banos }}</span>
+          </div>
+        </div>
+        
+        <h4 class="mb-4 text-center" style="color: var(--accent-color);">
+          {{ p.precio_venta|floatformat:0 }} {{ p.moneda }}
+        </h4>
+        
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-dark" href="{% url 'catalogo:detalle' p.pk %}">VER DETALLES</a>
+          {% if user.is_authenticated %}
+            <a class="btn btn-link text-muted text-decoration-none small" href="{% url 'catalogo:editar' p.pk %}">Editar</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
   {% empty %}
-    <tr><td colspan="8" class="text-center text-muted">No hay propiedades que coincidan.</td></tr>
+  <div class="col-12 text-center py-5">
+    <h4 class="text-muted fw-light">No encontramos propiedades con esos filtros.</h4>
+  </div>
   {% endfor %}
-  </tbody>
-</table>
 </div>
-<a class="btn btn-link" href="{% url 'catalogo:home' %}">← Inicio</a>
 {% endblock %}

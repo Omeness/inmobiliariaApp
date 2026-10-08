@@ -1,48 +1,51 @@
 {% extends 'catalogo/base.html' %}
 {% block title %}Editar propiedad{% endblock %}
 {% block content %}
-<h2 class="mb-3">Editar propiedad #{{ object.id }}</h2>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">Editar Propiedad #{{ object.id }}</h2>
+      <form method="post" action="{% url 'catalogo:baja' object.pk %}"
+            onsubmit="return confirm('¿Seguro que deseas dar de baja esta propiedad?');">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger btn-sm text-uppercase fw-bold">Dar de baja</button>
+      </form>
+    </div>
 
-{% if object.fotografia_principal %}
-  <div class="mb-3">
-    <div class="small text-muted mb-1">Fotografía actual</div>
-    <img src="{{ object.fotografia_principal.url }}" alt="{{ object.titulo }}"
-         class="img-thumbnail" style="max-height: 180px;">
+    {% if object.fotografia_principal %}
+      <div class="mb-4 p-3 bg-light rounded text-center">
+        <div class="small text-muted mb-2 text-uppercase fw-bold">Fotografía actual</div>
+        <img src="{{ object.fotografia_principal.url }}" alt="{{ object.titulo }}"
+             class="img-thumbnail border-0 shadow-sm" style="max-height: 250px;">
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="form-propiedad" class="card p-5 mb-5">
+      {% csrf_token %}
+      {% include 'catalogo/_campos.html' %}
+      <div class="mt-5 d-flex gap-3 justify-content-end">
+        <a class="btn btn-outline-dark px-4" href="{% url 'catalogo:lista' %}">CANCELAR</a>
+        <button type="submit" class="btn btn-accent px-5">GUARDAR CAMBIOS</button>
+      </div>
+    </form>
   </div>
-{% endif %}
-
-<form method="post" enctype="multipart/form-data" id="form-propiedad" class="card card-body mb-3">
-  {% csrf_token %}
-  {% include 'catalogo/_campos.html' %}
-  <div class="mt-4 d-flex gap-2">
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a class="btn btn-secondary" href="{% url 'catalogo:lista' %}">Cancelar</a>
-  </div>
-</form>
-
-<form method="post" action="{% url 'catalogo:baja' object.pk %}"
-      onsubmit="return confirm('¿Seguro que deseas dar de baja esta propiedad?');">
-  {% csrf_token %}
-  <button class="btn btn-danger">Dar de baja</button>
-</form>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
   const form = document.getElementById('form-propiedad');
   const estado = document.getElementById('id_estado_venta');
-  const estadoInicial = estado.value;
+  const estadoInicial = estado ? estado.value : '';
   const chkFoto = document.getElementById('id_eliminar_fotografia');
 
   form.addEventListener('submit', function (e) {
-    // Confirmación al marcar como VENDIDA
-    if (estado.value === 'VENDIDA' && estadoInicial !== 'VENDIDA') {
+    if (estado && estado.value === 'VENDIDA' && estadoInicial !== 'VENDIDA') {
       if (!confirm('Vas a marcar esta propiedad como VENDIDA. Después no podrá modificarse. ¿Confirmas que no es un error?')) {
         e.preventDefault();
         return;
       }
     }
-    // Confirmación al eliminar la fotografía
     if (chkFoto && chkFoto.checked) {
       if (!confirm('Se eliminará la fotografía de esta propiedad. ¿Deseas continuar?')) {
         e.preventDefault();

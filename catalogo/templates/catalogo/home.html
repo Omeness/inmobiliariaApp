@@ -1,11 +1,14 @@
 {% extends 'catalogo/base.html' %}
 {% block content %}
 <div class="text-center py-5">
-  <h1 class="mb-5">Gestión de Catálogo</h1>
-  <div class="d-grid gap-3 col-md-4 mx-auto">
-    <a class="btn btn-primary btn-lg" href="{% url 'catalogo:lista' %}">Explorar Propiedades</a>
-    <a class="btn btn-success btn-lg" href="{% url 'catalogo:crear' %}">Publicar Inmueble</a>
-    <a class="btn btn-warning btn-lg" href="{% url 'catalogo:buscar' %}">Administrar Portafolio</a>
+  <h1 class="display-4 fw-bold mb-3">Encuentra tu lugar ideal</h1>
+  <p class="text-muted mb-5 fs-5">Descubre propiedades exclusivas seleccionadas para ti.</p>
+  
+  <div class="d-flex justify-content-center gap-3 flex-wrap">
+    <a class="btn btn-accent btn-lg px-5 py-3" href="{% url 'catalogo:lista' %}">Explorar Propiedades</a>
+    {% if user.is_authenticated %}
+    <a class="btn btn-outline-accent btn-lg px-5 py-3" href="{% url 'catalogo:crear' %}">Publicar Inmueble</a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
