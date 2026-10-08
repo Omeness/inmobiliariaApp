@@ -24,22 +24,6 @@ Este es un proyecto backend desarrollado en **Django** con base de datos **MySQL
    - **Normalización y Límites:** El texto de descripción está limitado a un máximo de 800 caracteres. Existen filtros contra caracteres extraños y se restringe la sobrecarga de datos en usuario (max 150) y contraseña (max 128).
    - **Archivos:** Limite de peso en carga de fotografías (máximo 5MB).
 
-## Instalación y Ejecución
-
-1. Activa tu entorno virtual e instala las dependencias:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Asegúrate de tener XAMPP o un servidor MySQL corriendo.
-3. Ejecuta las migraciones para crear las tablas en la BD:
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
-4. Inicia el servidor:
-   ```bash
-   python manage.py runserver
-   ```
 
 ## Futuras Implementaciones
 
